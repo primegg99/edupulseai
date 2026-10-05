@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Practice Questions & Mock Papers | EduPulse AI</title>
+<meta name="description" content="Practise topic questions with key-term feedback and model answers, or create timed mock papers with EduPulse AI. Free browser-based revision tools.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+    display: ['Poppins', 'Inter', 'system-ui', 'sans-serif']
+  } } } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+  :root {
+    color-scheme: dark;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --obsidian: #07080c;
+    --obsidian-2: #0f111a;
+    --cyan: #00f3ff;
+    --green: #00ff66;
+    --violet: #a855f7;
+    --pink: #ff007f;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 84px); }
+  body {
+    margin: 0;
+    background: var(--obsidian);
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .bg-orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(600px 400px at 12% 8%, rgba(0,243,255,.13), transparent 70%),
+      radial-gradient(560px 420px at 88% 22%, rgba(168,85,247,.16), transparent 70%),
+      radial-gradient(520px 380px at 50% 100%, rgba(255,0,127,.10), transparent 70%),
+      linear-gradient(180deg, #07080c, #0f111a 60%, #07080c);
+  }
+  .bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 78%);
+            mask-image: radial-gradient(ellipse at center, #000 30%, transparent 78%);
+  }
+  .font-display { font-family: 'Poppins', 'Inter', system-ui, sans-serif; }
+  .glass { background: rgba(255,255,255,.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.10); }
+  .grad-text {
+    background: linear-gradient(90deg, #00f3ff, #a855f7, #ff007f, #00f3ff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shift 7s linear infinite;
+  }
+  @keyframes shift { to { background-position: 300% 0; } }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; font-weight: 700; border-radius: 1rem; padding: .75rem 1.25rem; transition: transform .15s ease, box-shadow .2s ease, filter .2s ease; cursor: pointer; border: 0; }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .btn:active { transform: translateY(0) scale(.98); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .btn-green { background: var(--green); color: #03140a; box-shadow: 0 0 18px rgba(0,255,102,.5); }
+  .btn-cyan { background: var(--cyan); color: #021316; box-shadow: 0 0 18px rgba(0,243,255,.5); }
+  .btn-pink { background: var(--pink); color: #fff; box-shadow: 0 0 18px rgba(255,0,127,.55); }
+  .btn-violet { background: var(--violet); color: #fff; box-shadow: 0 0 18px rgba(168,85,247,.55); }
+  .btn-ghost { background: rgba(255,255,255,.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,.14); }
+  .btn-ghost:hover { background: rgba(255,255,255,.12); }
+  .field { width: 100%; background: rgba(7,8,12,.65); border: 1px solid rgba(255,255,255,.14); border-radius: 1rem; padding: .8rem 1rem; color: #f1f5f9; outline: none; transition: border-color .2s, box-shadow .2s, min-height .25s; font: inherit; }
+  .field::placeholder { color: #64748b; }
+  .field:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,243,255,.18), 0 0 18px rgba(0,243,255,.25); }
+  .field-violet:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(168,85,247,.22), 0 0 18px rgba(168,85,247,.3); }
+  textarea.field { resize: vertical; min-height: 5.5rem; }
+  textarea.field:focus { min-height: 9rem; }
+  select.field option { background: #0f111a; color: #e2e8f0; }
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .ring-track { stroke: rgba(255,255,255,.1); }
+  .ring-bar { transition: stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 0 8px currentColor); }
+  .pop { animation: pop .28s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(6px); } to { opacity: 1; transform: none; } }
+  .pulse-dot { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.15); } }
+  .sticky-under { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 68px); z-index: 20; }
+  .app-header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); background: rgba(7,8,12,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,.08); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .grad-text, .pulse-dot, .pop { animation: none; }
+    .ring-bar, .btn { transition: none; }
+  }
+  @media print {
+    :root { padding: 0; }
+    body { background: #fff !important; }
+    * { color: #000 !important; text-shadow: none !important; box-shadow: none !important; }
+    .no-print, .bg-orbs, .bg-grid, .app-header { display: none !important; }
+    .glass { background: #fff !important; border: 1px solid #000 !important; backdrop-filter: none !important; }
+    .field { background: #fff !important; border: 1px solid #555 !important; }
+    .avoid-break { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-orbs"></div>
+<div class="bg-grid"></div>
+<div id="root" style="position:relative;z-index:1"></div>
+
+<script>
+(function () {
+  'use strict';
+  var useState = React.useState, useEffect = React.useEffect, useRef = React.useRef;
+  var html = htm.bind(React.createElement);
+
+  /* ---------- Icons (Lucide-style paths, inline so nothing external is needed) ---------- */
+  var CIRCLE = 'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20z';
+  var ICONS = {
+    spark: 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z',
+    zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+    clock: [CIRCLE, 'M12 6v6l4 2'],
+    printer: ['M6 9V2h12v7', 'M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2', 'M6 14h12v8H6z'],
+    eye: ['M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z', 'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z'],
+    check: 'M20 6L9 17l-5-5',
+    x: 'M18 6L6 18M6 6l12 12',
+    trophy: ['M6 9H4.5a2.5 2.5 0 0 1 0-5H6', 'M18 9h1.5a2.5 2.5 0 0 0 0-5H18', 'M4 22h16', 'M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22', 'M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22', 'M18 2H6v7a6 6 0 0 0 12 0V2Z'],
+    play: 'M5 3l14 9-14 9z',
+    pause: ['M6 4h4v16H6z', 'M14 4h4v16h-4z'],
+    reset: ['M3 12a9 9 0 1 0 3-6.7L3 8', 'M3 3v5h5'],
+    book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z',
+    search: ['M11 3a8 8 0 1 0 0 16a8 8 0 1 0 0-16z', 'M21 21l-4.3-4.3'],
+    bulb: ['M9 18h6', 'M10 22h4', 'M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z'],
+    target: [CIRCLE, 'M12 6a6 6 0 1 0 0 12a6 6 0 1 0 0-12z', 'M12 10a2 2 0 1 0 0 4a2 2 0 1 0 0-4z'],
+    flame: 'M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-9z'
+  };
+  function Icon(p) {
+    var d = [].concat(ICONS[p.name] || []);
+    return html`<svg width=${p.size || 18} height=${p.size || 18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className=${p.className || ''} aria-hidden="true">${d.map(function (x, i) { return html`<path key=${i} d=${x} />`; })}</svg>`;
+  }
+
+  /* ---------- Evaluation engine ---------- */
+  function norm(s) { return String(s || '').toLowerCase().replace(/[−–—]/g, '-').replace(/\s+/g, ' ').trim(); }
+  function has(t, syn) {
+    var s = norm(syn);
+    if (!s) return false;
+    if (/^[a-z0-9]{1,2}$/.test(s)) return new RegExp('(^|[^a-z0-9])' + s + '([^a-z0-9]|$)').test(t);
+    return t.indexOf(s) !== -1;
+  }
+  function evaluate(answer, kw) {
+    var t = norm(answer), hit = [], miss = [];
+    kw.forEach(function (g) { (g.some(function (s) { return has(t, s); }) ? hit : miss).push(g[0]); });
+    var ratio = kw.length ? hit.length / kw.length : 0;
+    var level = ratio >= 0.6 ? 'correct' : ratio >= 0.3 ? 'partial' : 'improve';
+    return { ratio: ratio, level: level, hit: hit, miss: miss, points: level === 'correct' ? 1 : level === 'partial' ? 0.5 : 0 };
+  }
+
+  /* ---------- Knowledge base (built-in topics with hand-written model answers) ---------- */
+  function F(q, a, kw, d, f, t) { return { q: q, a: a, kw: kw, d: d, f: f, t: t }; }
+  var KB = [
+    { keys: ['photosynth'], subject: 'Science', title: 'Photosynthesis',
+      facts: [
+        F('Define photosynthesis and write its balanced chemical equation.', 'Photosynthesis is the process by which green plants use sunlight, carbon dioxide and water to prepare glucose (food). Oxygen is released as a by-product. The overall reaction is 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ in the presence of light and chlorophyll.', [['sunlight', 'light'], ['carbon dioxide', 'co2'], ['water', 'h2o'], ['glucose', 'food', 'sugar', 'carbohydrate'], ['oxygen', 'o2']], 'Easy', '6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (light, chlorophyll)', 'Plants are producers: light energy is stored as chemical energy in glucose.'),
+        F('What is the role of chlorophyll in photosynthesis?', 'Chlorophyll is the green pigment present in chloroplasts. It absorbs light energy, mainly red and blue light. This trapped energy drives the reactions that make food.', [['chlorophyll'], ['absorb', 'trap', 'capture'], ['light', 'sunlight'], ['chloroplast', 'green pigment', 'pigment']], 'Easy', 'Chlorophyll = light-absorbing pigment inside chloroplasts', 'No chlorophyll, no light capture, no photosynthesis.'),
+        F('Name the two stages of photosynthesis and state where each takes place.', 'The light-dependent reactions occur in the thylakoid membranes (grana) of the chloroplast, where water splits and ATP and NADPH form. The light-independent reactions (Calvin cycle) occur in the stroma, where carbon dioxide is fixed into glucose.', [['light-dependent', 'light dependent', 'light reaction'], ['calvin', 'light-independent', 'light independent', 'dark reaction'], ['thylakoid', 'grana'], ['stroma'], ['chloroplast']], 'Medium', 'Light reaction → thylakoid; Calvin cycle → stroma', 'Light reaction makes ATP and NADPH; the Calvin cycle uses them to build sugar.'),
+        F('What is the function of stomata in photosynthesis?', 'Stomata are tiny pores on the leaf surface surrounded by guard cells. They allow carbon dioxide to enter for photosynthesis and let oxygen and water vapour leave. This gas exchange is essential for the leaf.', [['stomata', 'stoma'], ['carbon dioxide', 'co2'], ['gas exchange', 'exchange', 'oxygen'], ['guard cell', 'pore', 'opening']], 'Medium', 'Stomata: gateway for CO₂ in, O₂ and water vapour out', 'Guard cells open and close the stomata to balance gas exchange and water loss.'),
+        F('List four factors that affect the rate of photosynthesis and explain any one.', 'The rate depends on light intensity, carbon dioxide concentration, temperature and water availability. For example, as light intensity increases the rate rises until another factor becomes limiting, after which the rate stays constant.', [['light intensity', 'light'], ['carbon dioxide', 'co2'], ['temperature'], ['water'], ['limiting', 'increase', 'rate']], 'Medium', 'Limiting factor: the factor in shortest supply sets the rate', 'Rate rises with light and CO₂ up to a plateau; extreme heat denatures enzymes.'),
+        F('Explain why photosynthesis is important for all life on Earth.', 'Photosynthesis produces glucose, the base of every food chain, so plants act as producers that feed all other organisms. It releases the oxygen that living things breathe. It also removes carbon dioxide from the air, helping to regulate the climate.', [['oxygen'], ['food', 'glucose', 'food chain', 'producer'], ['carbon dioxide', 'co2'], ['energy', 'climate', 'atmosphere', 'balance']], 'Hard', 'Producers → food chain → oxygen → carbon balance', 'It links sunlight to every living thing through food and oxygen.')
+      ],
+      mcqs: [
+        { q: 'Which pigment traps sunlight during photosynthesis?', o: ['Chlorophyll', 'Melanin', 'Haemoglobin', 'Keratin'] },
+        { q: 'Which gas is released as a by-product of photosynthesis?', o: ['Oxygen', 'Carbon dioxide', 'Nitrogen', 'Hydrogen'] },
+        { q: 'In which cell organelle does photosynthesis take place?', o: ['Chloroplast', 'Mitochondria', 'Ribosome', 'Nucleus'] },
+        { q: 'During the light reaction, which molecule is split (photolysis)?', o: ['Water', 'Glucose', 'Starch', 'Carbon dioxide'] }
+      ] },
+    { keys: ['quadratic'], subject: 'Mathematics', title: 'Quadratic Equations',
+      facts: [
+        F('Write the standard form of a quadratic equation and state the condition on its coefficients.', 'The standard form is ax² + bx + c = 0, where a, b and c are real numbers and a ≠ 0. If a were zero the equation would become linear, so a must be non-zero.', [['ax'], ['bx'], ['c'], ['= 0', '=0'], ['a ≠ 0', 'a≠0', 'not zero', 'not equal to zero', 'non-zero', 'nonzero', 'a != 0']], 'Easy', 'ax² + bx + c = 0,  a ≠ 0', 'The highest power of x is 2, which makes it quadratic.'),
+        F('Solve x² − 5x + 6 = 0 by factorisation.', 'Split the middle term: x² − 2x − 3x + 6 = 0. Group the terms: x(x − 2) − 3(x − 2) = 0. So (x − 2)(x − 3) = 0. Hence x = 2 or x = 3.', [['factor', 'split', 'middle term', 'factoris', 'factoriz'], ['2'], ['3']], 'Easy', 'Find two numbers with sum −5 and product 6 → −2 and −3', 'Set each factor to zero to get the roots.'),
+        F('State the quadratic formula and explain the role of the discriminant.', 'The roots are x = (−b ± √(b² − 4ac)) / 2a. The discriminant D = b² − 4ac decides the nature of the roots: D > 0 gives two distinct real roots, D = 0 gives two equal real roots, and D < 0 gives no real roots.', [['-b', 'minus b'], ['√', 'sqrt', 'square root'], ['b²-4ac', 'b^2-4ac', 'b2-4ac', 'discriminant'], ['2a'], ['real', 'equal', 'distinct', 'no real']], 'Medium', 'x = (−b ± √D) / 2a,  D = b² − 4ac', 'D > 0: two real roots · D = 0: equal roots · D < 0: no real roots.'),
+        F('Write the relations between the roots and coefficients of ax² + bx + c = 0.', 'If α and β are the roots then the sum of the roots α + β = −b/a and the product of the roots αβ = c/a.', [['-b/a', 'minus b/a', 'minus b by a', '-b by a'], ['c/a', 'c by a'], ['sum'], ['product']], 'Medium', 'α + β = −b/a,  αβ = c/a', 'You can build an equation from its roots: x² − (sum)x + (product) = 0.'),
+        F('Find the value of k for which x² + kx + 9 = 0 has equal roots.', 'For equal roots the discriminant must be zero, so D = k² − 4(1)(9) = 0. This gives k² = 36 and therefore k = ±6.', [['d = 0', 'd=0', 'discriminant', 'equal roots'], ['k²-36', 'k^2-36', 'k2-36', '36', 'k² = 36'], ['±6', '+-6', 'plus or minus 6', '6', '-6']], 'Hard', 'Equal roots ⇔ b² − 4ac = 0', 'Always put the discriminant equal to zero for repeated roots.')
+      ],
+      mcqs: [
+        { q: 'What is the degree of a quadratic equation?', o: ['2', '1', '3', '0'] },
+        { q: 'If the discriminant is negative, the quadratic equation has:', o: ['No real roots', 'Two distinct real roots', 'Two equal real roots', 'Exactly one root'] },
+        { q: 'What are the roots of x² − 9 = 0?', o: ['3 and −3', '9 and −9', '3 only', '0 and 9'] },
+        { q: 'The sum of the roots of x² − 7x + 12 = 0 is:', o: ['7', '12', '−7', '−12'] }
+      ] },
+    { keys: ['newton'], subject: 'Physics', title: "Newton's Laws of Motion",
+      facts: [
+        F("State Newton's first law of motion and name the property it describes.", 'A body remains at rest or in uniform motion in a straight line unless an external unbalanced force acts on it. This property of a body to resist any change in its state of rest or motion is called inertia.', [['inertia'], ['rest'], ['uniform motion', 'constant velocity', 'straight line', 'motion'], ['unbalanced force', 'external force', 'net force', 'force']], 'Easy', 'Inertia: bodies resist a change in their state of motion', 'Heavier objects have more inertia.'),
+        F("State Newton's second law and derive the formula for force.", 'The rate of change of momentum of a body is directly proportional to the net unbalanced force applied, in the direction of the force. For constant mass this gives F = ma, the force equals mass times acceleration.', [['f = ma', 'f=ma', 'force = mass', 'mass × acceleration', 'mass x acceleration', 'mass times acceleration'], ['net force', 'unbalanced', 'resultant'], ['proportional', 'directly'], ['momentum', 'rate of change']], 'Medium', 'F = ma  (SI unit of force: newton, N)', 'Same force on a smaller mass gives a larger acceleration.'),
+        F("State Newton's third law with an example.", 'To every action there is an equal and opposite reaction. The action and reaction act on two different bodies, so they do not cancel. For example, when you push a wall, the wall pushes you back with an equal force.', [['action'], ['reaction'], ['equal'], ['opposite'], ['different bod', 'two bod', 'two object', 'different object', 'example', 'wall', 'rocket']], 'Easy', 'Force pairs: equal in size, opposite in direction, on different bodies', 'Forces in a pair never act on the same object.'),
+        F('A force acts on a 5 kg object and gives it an acceleration of 2 m/s². Calculate the force.', 'Use F = ma. Here m = 5 kg and a = 2 m/s². Therefore F = 5 × 2 = 10 N.', [['f = ma', 'f=ma', 'force = mass', '5 × 2', '5x2', '5*2', '5 x 2'], ['10'], ['newton', 'n']], 'Easy', 'F = ma → F = 5 × 2 = 10 N', 'Always write the unit: force is measured in newtons.'),
+        F('Why do passengers jerk forward when a moving bus suddenly brakes?', 'Passengers were moving along with the bus. When the bus stops suddenly, the lower part of the body stops with it but the upper part tends to continue in its state of motion because of inertia. So the passengers lurch forward.', [['inertia'], ['forward'], ['motion', 'moving'], ['body', 'upper', 'passenger']], 'Medium', 'Law of inertia in everyday life', 'Seat belts apply the unbalanced force that stops your body safely.'),
+        F("Explain how a rocket moves using Newton's third law and conservation of momentum.", 'A rocket pushes hot exhaust gases backwards at high speed (action). The gases push the rocket forward with an equal and opposite force (reaction). The backward momentum of the gas equals the forward momentum gained by the rocket, so total momentum is conserved.', [['rocket'], ['gas', 'exhaust'], ['action'], ['reaction', 'opposite'], ['momentum']], 'Hard', 'm₁v₁ = −m₂v₂ (momentum conserved)', 'Rockets work even in vacuum because they push against their own exhaust, not the air.')
+      ],
+      mcqs: [
+        { q: 'What is the SI unit of force?', o: ['Newton', 'Joule', 'Watt', 'Pascal'] },
+        { q: "Which law of motion is also called the law of inertia?", o: ['First law', 'Second law', 'Third law', 'Law of gravitation'] },
+        { q: 'A force of 50 N acts on a 10 kg object. Its acceleration is:', o: ['5 m/s²', '0.2 m/s²', '500 m/s²', '60 m/s²'] },
+        { q: "Which expression represents Newton's second law?", o: ['F = ma', 'F = mv', 'F = m/a', 'F = a/m'] }
+      ] },
+    { keys: ['french revolution', 'bastille'], subject: 'Social Science', title: 'The French Revolution',
+      facts: [
+        F('Name the three Estates of pre-revolutionary French society.', 'The First Estate was the clergy, the Second Estate was the nobility, and the Third Estate consisted of commoners such as peasants, artisans and the middle class. Only the Third Estate paid most of the taxes.', [['clergy', 'first estate'], ['nobility', 'noble', 'second estate'], ['third estate', 'commoner', 'peasant', 'bourgeois', 'middle class'], ['tax']], 'Easy', 'Clergy · Nobility · Commoners', 'The Third Estate was the largest group but had the least privilege.'),
+        F('Why is the storming of the Bastille important?', 'On 14 July 1789 a Parisian crowd stormed the Bastille, a royal prison-fortress. It was a symbol of the king’s despotic power, so its fall marked the beginning of the revolution. The day is now celebrated as France’s national day.', [['bastille'], ['14 july', 'july 14', '1789'], ['prison', 'fortress'], ['symbol', 'tyranny', 'royal', 'despot', 'king']], 'Easy', 'Date: 14 July 1789', 'The Bastille symbolised absolute monarchy.'),
+        F('List the main causes of the French Revolution.', 'The state was near bankruptcy because of wars and royal spending. Unfair taxation burdened the Third Estate while the clergy and nobility were exempt. A subsistence crisis raised the price of bread. The ideas of philosophers such as Rousseau, Voltaire and Montesquieu inspired demands for equality.', [['tax', 'taxation'], ['estate', 'clergy', 'nobility', 'third estate', 'privilege'], ['bread', 'food', 'famine', 'price', 'hunger'], ['enlightenment', 'philosoph', 'rousseau', 'voltaire', 'montesquieu'], ['debt', 'bankrupt', 'financial', 'war']], 'Medium', 'Economic + social + intellectual causes', 'Revolutions need both grievances and ideas.'),
+        F('What was the Declaration of the Rights of Man and the Citizen?', 'Adopted by the National Assembly in August 1789, it declared that all men are born free and equal in rights. It guaranteed liberty, property, security and resistance to oppression, and became the foundation of modern human-rights thinking.', [['1789'], ['liberty', 'freedom', 'free'], ['equality', 'equal'], ['rights'], ['national assembly']], 'Medium', 'Liberty · Equality · Rights of citizens', 'Sovereignty passed from the king to the nation.'),
+        F('What was the Reign of Terror? Name its chief leader.', 'From 1793 to 1794 the Committee of Public Safety under Maximilien Robespierre ruled by terror. Suspected enemies of the republic were arrested and executed by the guillotine. It ended with Robespierre’s own execution in July 1794.', [['robespierre'], ['guillotine', 'execut'], ['jacobin', 'committee of public safety', 'committee'], ['1793', '1794'], ['enemies', 'suspect', 'republic']], 'Hard', '1793–1794 · Robespierre · Guillotine', 'Extreme measures in the name of the revolution turned into repression.'),
+        F('Assess the long-term impact of the French Revolution on France and the world.', 'It ended absolute monarchy and feudal privileges and established the ideals of liberty, equality and fraternity. It inspired democratic and nationalist movements across Europe and the colonies, and it paved the way for Napoleon’s rise.', [['liberty', 'freedom'], ['equality'], ['fraternity'], ['democra', 'republic'], ['napoleon'], ['monarchy', 'feudal', 'abolish']], 'Hard', 'Liberty · Equality · Fraternity', 'The revolution changed the idea of who holds power in a state.')
+      ],
+      mcqs: [
+        { q: 'On which date was the Bastille stormed?', o: ['14 July 1789', '4 July 1776', '1 January 1800', '21 January 1793'] },
+        { q: 'What was the slogan of the French Revolution?', o: ['Liberty, Equality, Fraternity', 'Land, Bread, Peace', 'Unity, Faith, Discipline', 'Freedom, Order, Wealth'] },
+        { q: 'Who belonged to the Third Estate?', o: ['Commoners such as peasants and artisans', 'Clergy only', 'Nobles only', 'Royal family'] },
+        { q: 'Who was the king of France at the start of the revolution?', o: ['Louis XVI', 'Louis XIV', 'Napoleon Bonaparte', 'Charles X'] }
+      ] },
+    { keys: ['tense', 'verb'], subject: 'English', title: 'Verbs & Tenses',
+      facts: [
+        F('What is a verb? Give two examples in sentences.', 'A verb is a word that shows an action or a state of being. For example, "Riya sings well" (action) and "The sky is blue" (state).', [['action', 'doing'], ['state', 'being'], ['word'], ['example', 'sings', 'is', 'runs', 'eats']], 'Easy', 'Verb = action or state', 'Every complete sentence needs a verb.'),
+        F('Explain the difference between the simple present and the present continuous with examples.', 'The simple present talks about habits, routines and general facts (She plays cricket every day). The present continuous talks about actions happening right now or around now (She is playing cricket now). The continuous uses am/is/are + verb-ing.', [['habit', 'routine', 'regular', 'daily', 'fact', 'every'], ['now', 'moment', 'progress', 'ongoing', 'currently', 'happening'], ['ing'], ['is', 'am', 'are']], 'Medium', 'Simple present: V1 / V1+s · Continuous: am/is/are + V-ing', 'Ask: is it a habit (simple) or happening now (continuous)?'),
+        F('Correct the sentence and give the reason: "She go to school every day."', 'The correct sentence is "She goes to school every day." With a third-person singular subject (he, she, it) the verb takes -s or -es in the simple present, so subject–verb agreement is needed.', [['goes'], ['third person', 'singular', 'he/she/it', 'subject-verb', 'subject verb', 'agreement']], 'Easy', 'Third person singular → verb + s/es', 'Check the subject before choosing the verb form.'),
+        F('When do we use the past perfect tense? Give an example.', 'The past perfect (had + past participle) is used for an action completed before another action in the past. For example, "The train had left before I reached the station."', [['had'], ['past participle', 'v3', 'third form'], ['before', 'earlier', 'already'], ['two', 'another past', 'past action', 'example']], 'Medium', 'had + V3', 'Use it to show which past event happened first.'),
+        F('Identify and explain the tense: "They will have finished the project by noon."', 'This is the future perfect tense (will have + past participle). It shows an action that will be completed before a specific time in the future, here by noon.', [['future perfect'], ['will have'], ['past participle', 'finished', 'v3'], ['before', 'by noon', 'completed', 'complete']], 'Medium', 'will have + V3', 'Look for "by then", "by noon" or "before" as time clues.'),
+        F('Distinguish between the present perfect and the simple past with examples.', 'The present perfect (have/has + V3) links the past with the present, with no specific time (I have visited Jaipur). The simple past describes a finished action at a definite time (I visited Jaipur last year). Time expressions such as yesterday or ago go with the simple past.', [['present perfect'], ['simple past'], ['have', 'has'], ['specific time', 'finished', 'yesterday', 'ago', 'last year', 'definite'], ['experience', 'result', 'connected', 'present', 'unspecified']], 'Hard', 'have/has + V3  vs  V2 + finished time', 'A definite past time forces the simple past.')
+      ],
+      mcqs: [
+        { q: 'What is the past tense of "go"?', o: ['Went', 'Goed', 'Gone', 'Going'] },
+        { q: 'Choose the correct option: "She ___ reading a book right now."', o: ['is', 'are', 'was', 'be'] },
+        { q: 'Which of these is a helping (auxiliary) verb?', o: ['Has', 'Quickly', 'Table', 'Green'] },
+        { q: 'Which tense is "I have eaten lunch"?', o: ['Present perfect', 'Simple past', 'Past perfect', 'Future perfect'] }
+      ] },
+    { keys: ['fraction'], subject: 'Mathematics', title: 'Fractions',
+      facts: [
+        F('What is a fraction? Name its two parts.', 'A fraction represents a part of a whole. The number on top is the numerator, which shows how many parts are taken, and the number below is the denominator, which shows the total equal parts.', [['part'], ['whole'], ['numerator'], ['denominator']], 'Easy', 'Fraction = numerator / denominator', 'In 3/4, three of four equal parts are taken.'),
+        F('Add 1/4 + 2/4. Explain your steps.', 'The denominators are the same, so keep the denominator and add the numerators: 1 + 2 = 3. The answer is 3/4.', [['3/4', 'three fourth', 'three quarter'], ['same denominator', 'denominator', 'add the numerator', 'numerator']], 'Easy', 'Same denominator → add the numerators only', 'Never add the denominators.'),
+        F('Write one equivalent fraction of 1/2 and explain how you found it.', 'Multiply the numerator and the denominator by the same number. For example, 1 × 2 and 2 × 2 give 2/4, which is equal to 1/2.', [['2/4', '3/6', '4/8', '5/10'], ['multiply', 'same number', 'times'], ['equal', 'equivalent', 'same']], 'Medium', 'Multiply (or divide) top and bottom by the same number', 'Equivalent fractions look different but have the same value.')
+      ],
+      mcqs: [
+        { q: 'In the fraction 5/8, what is the denominator?', o: ['8', '5', '13', '3'] },
+        { q: 'Which fraction is equal to 1/2?', o: ['3/6', '2/5', '1/4', '3/5'] },
+        { q: 'What is 2/5 + 1/5?', o: ['3/5', '3/10', '2/10', '1/5'] }
+      ] }
+  ];
+
+  var SUBJECT_WORDS = [
+    ['Mathematics', ['equation', 'algebra', 'geometry', 'fraction', 'number', 'trigonometry', 'calculus', 'integral', 'derivative', 'triangle', 'area', 'percent', 'mensuration', 'matrix', 'probability', 'statistics', 'polynomial', 'circle']],
+    ['Physics', ['force', 'motion', 'energy', 'light', 'electric', 'magnet', 'wave', 'gravity', 'optics', 'current', 'thermo', 'work', 'power', 'sound']],
+    ['Chemistry', ['acid', 'base', 'atom', 'molecule', 'reaction', 'chemical', 'periodic', 'element', 'bond', 'salt', 'metal', 'carbon', 'mole', 'organic']],
+    ['Biology', ['cell', 'plant', 'human', 'digest', 'genetic', 'organism', 'ecosystem', 'respiration', 'heredity', 'evolution', 'reproduc', 'nutrition', 'tissue']],
+    ['English', ['grammar', 'noun', 'essay', 'poem', 'prose', 'letter', 'comprehension', 'adjective', 'adverb', 'story', 'writing']],
+    ['Social Science', ['history', 'revolution', 'war', 'geography', 'civics', 'constitution', 'democracy', 'climate', 'map', 'empire', 'economics', 'resources', 'nationalism']],
+    ['Computer Science', ['computer', 'program', 'algorithm', 'python', 'internet', 'database', 'code', 'html', 'network', 'software']],
+    ['Aptitude & Reasoning', ['reasoning', 'aptitude', 'ratio', 'profit', 'series', 'syllogism', 'puzzle', 'seating', 'percentage']]
+  ];
+  function detectSubject(topic, fallback) {
+    var n = norm(topic);
+    for (var i = 0; i < SUBJECT_WORDS.length; i++) {
+      if (SUBJECT_WORDS[i][1].some(function (w) { return n.indexOf(w) !== -1; })) return SUBJECT_WORDS[i][0];
+    }
+    return fallback || 'the subject';
+  }
+  function findTopic(input) {
+    var n = norm(input);
+    for (var i = 0; i < KB.length; i++) {
+      if (KB[i].keys.some(function (k) { return n.indexOf(k) !== -1; })) return KB[i];
+    }
+    return null;
+  }
+  function tokens(topic) {
+    var w = norm(topic).replace(/[^a-z0-9 ]/g, ' ').split(' ').filter(function (x) { return x.length > 3; });
+    return w.length ? w : [norm(topic)];
+  }
+  function fill(s, T, S) { return s.split('{T}').join(T).split('{S}').join(S); }
+
+  /* ---------- Adaptive templates (used for topics outside the built-in library) ---------- */
+  var GEN = [
+    { d: 'Easy', q: 'In simple words, what is {T}? Give one everyday example.', a: '{T} is an important idea in {S}. A good answer explains what it means in one clear sentence, names its main parts or terms, and gives one everyday example that shows it in action.', kw: function (tg) { return [tg, ['means', 'refers', 'is a', 'is the', 'called', 'defined', 'idea'], ['example', 'for instance', 'such as', 'e.g']]; } },
+    { d: 'Easy', q: 'Write one sentence that would make a strong exam-answer opening for {T}.', a: 'A strong opening names {T}, states what it is in one line, and hints at what you will explain next, for example: "{T} is the concept in {S} that describes ..., and it works by ..."', kw: function (tg) { return [tg, ['is', 'are', 'refers', 'means', 'describes']]; } },
+    { d: 'Easy', q: 'Write two key terms, facts or rules connected with {T}.', a: 'Pick the two most important terms or rules from your textbook chapter on {T}. State each one precisely and add a few words on what it tells us.', kw: function (tg) { return [['term', 'fact', 'key', 'definition', 'formula', 'law', 'rule', 'concept', 'principle'], tg, ['and', ',', 'second', 'also']]; } },
+    { d: 'Medium', q: 'Give a real-life example where {T} is used or can be observed, and explain it.', a: 'Choose a familiar situation, name where {T} appears in it, and explain step by step how the idea applies. Link the example back to the definition of {T}.', kw: function (tg) { return [['example', 'real', 'daily', 'everyday', 'for instance', 'such as'], tg, ['because', 'so', 'therefore', 'as', 'since']]; } },
+    { d: 'Medium', q: 'List the main steps or components involved in {T}.', a: 'Break {T} into its steps or components in the correct order, naming each one and giving a short purpose for it. Finish with how they work together.', kw: function (tg) { return [['step', 'first', 'then', 'component', 'part', 'stage', 'next'], tg, ['together', 'finally', 'result', 'purpose', 'function']]; } },
+    { d: 'Medium', q: 'Explain one common mistake students make in {T} and how to avoid it.', a: 'Identify a specific error, such as mixing up two terms or skipping a step in {T}. Explain why it happens and give a simple check or habit to avoid it.', kw: function () { return [['mistake', 'error', 'confus', 'wrong', 'misconception'], ['avoid', 'practice', 'check', 'remember', 'revise', 'correct']]; } },
+    { d: 'Medium', q: 'State the main cause-and-effect or reasoning idea behind {T}.', a: 'State what causes what in {T}, using linking words like because, therefore and as a result. Support it with one fact or example from {S}.', kw: function (tg) { return [['because', 'cause', 'reason', 'due to', 'effect', 'result', 'therefore', 'leads to'], tg]; } },
+    { d: 'Hard', q: 'Compare {T} with a related concept and explain how they differ.', a: 'Name a closely related concept in {S}. State one similarity, then at least two differences, using words such as whereas, unlike and while. Close with when you would use each.', kw: function () { return [['differ', 'difference', 'whereas', 'while', 'unlike', 'compare', 'contrast'], ['related', 'similar', 'both', 'other', 'same']]; } },
+    { d: 'Hard', q: 'How can {T} be applied to solve a new, unseen problem? Outline your reasoning.', a: 'State the problem, identify which idea from {T} applies, list the steps you would follow, and check the result against what you expect.', kw: function () { return [['apply', 'use', 'solve', 'reason', 'method', 'approach'], ['step', 'first', 'then', 'because', 'therefore', 'finally']]; } },
+    { d: 'Hard', q: 'Frame one challenging exam question on {T} and write its model answer.', a: 'A good question tests understanding rather than recall. Write the question, then answer it with a definition, reasoning steps and a concluding line on {T}.', kw: function (tg) { return [['question', '?'], ['answer', 'solution', 'therefore', 'hence'], tg]; } }
+  ];
+  var HOTS = [
+    { q: 'Analyse how {T} connects with another concept in {S}, and justify its importance using a real-world scenario.', a: 'Name the linked concept, explain the relationship with evidence, describe the scenario where both matter, and justify why understanding {T} changes the outcome.', kw: function (tg) { return [['analy', 'connect', 'link', 'relate', 'relationship'], tg, ['example', 'scenario', 'real', 'situation'], ['justif', 'because', 'therefore', 'important']]; } },
+    { q: 'A student holds a common misconception about {T}. Identify a likely misconception, correct it, and justify your correction.', a: 'State the misconception clearly, show why it fails with a counter-example, give the correct idea about {T}, and justify it with a rule, fact or worked example.', kw: function (tg) { return [['misconception', 'mistake', 'wrong', 'incorrect', 'error'], ['correct', 'actually', 'instead', 'right'], ['justif', 'because', 'proof', 'evidence', 'example'], tg]; } },
+    { q: 'Design a short case study or problem around {T} and explain how you would evaluate a solution to it.', a: 'Set up a realistic situation involving {T}, list the data or facts given, describe the method you would apply in steps, and state the criteria by which you would judge the solution.', kw: function (tg) { return [['case', 'problem', 'situation', 'scenario'], tg, ['step', 'method', 'first', 'then', 'approach'], ['evaluate', 'check', 'verify', 'criteria', 'judge', 'test']]; } },
+    { q: 'Critically evaluate the limitations of {T} and suggest one improvement or extension.', a: 'State where {T} works well, then where it breaks down or is incomplete, backed by a reason. Suggest a realistic improvement or an extension and say how it removes the limitation.', kw: function (tg) { return [['limitation', 'limit', 'drawback', 'weakness', 'fails', 'not always'], ['improve', 'extension', 'suggest', 'better', 'extend'], ['because', 'therefore', 'reason'], tg]; } },
+    { q: 'Predict what would happen if a key element of {T} were changed, and reason it out step by step.', a: 'Pick one key element of {T}. State a clear prediction, then reason step by step from cause to effect, and conclude with how confident you are and why.', kw: function (tg) { return [['predict', 'would', 'will', 'if'], ['because', 'therefore', 'so', 'leads to', 'result'], ['step', 'first', 'then', 'next'], tg]; } },
+    { q: 'Create an integrated problem that combines {T} with two other chapters of {S}, then solve it.', a: 'Write a problem that needs ideas from {T} and two other chapters. Solve it in labelled stages, naming which chapter each stage uses, and verify the final result.', kw: function (tg) { return [['problem', 'question'], tg, ['chapter', 'concept', 'combine', 'integrat', 'link'], ['solve', 'solution', 'answer', 'therefore', 'hence']]; } }
+  ];
+
+  /* ---------- Class levels ---------- */
+  var BANDS = [
+    { id: '3-5', label: 'Class 3–5' },
+    { id: '6-8', label: 'Class 6–8' },
+    { id: '9-10', label: 'Class 9–10' },
+    { id: '11-12', label: 'Class 11–12' },
+    { id: 'comp', label: 'Competitive Exams (JEE/NEET/General Prep)' }
+  ];
+  var bandLabel = function (id) { return (BANDS.filter(function (b) { return b.id === id; })[0] || BANDS[1]).label.replace(' (JEE/NEET/General Prep)', ''); };
+  var PAPER_CLASSES = ['Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12', 'JEE', 'NEET', 'Competitive Exam'];
+  function clsToBand(c) {
+    var m = /Class (\d+)/.exec(c);
+    if (!m) return 'comp';
+    var n = +m[1];
+    return n <= 5 ? '3-5' : n <= 8 ? '6-8' : n <= 10 ? '9-10' : '11-12';
+  }
+  function shiftDiff(d, band) {
+    if (band === '3-5') return { Easy: 'Easy', Medium: 'Easy', Hard: 'Medium' }[d];
+    if (band === 'comp') return { Easy: 'Medium', Medium: 'Hard', Hard: 'Hard' }[d];
+    return d;
+  }
+  var SUBJECTS = ['Mathematics', 'Science', 'English', 'Social Science', 'Physics', 'Chemistry', 'Biology', 'Computer Science'];
+
+  function shuffle(a) {
+    var r = a.slice();
+    for (var i = r.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = r[i]; r[i] = r[j]; r[j] = t; }
+    return r;
+  }
+  function stepsOf(text) { return text.split(/(?<=[.!?])\s+/).filter(Boolean); }
+
+  function buildPractice(topic, band, count) {
+    var T = topic.trim(), kb = findTopic(T);
+    var S = kb ? kb.subject : detectSubject(T);
+    var tg = tokens(T);
+    var list = [];
+    if (kb) kb.facts.forEach(function (f) { list.push({ q: f.q, a: f.a, kw: f.kw, d: f.d, f: f.f, t: f.t }); });
+    var order = { Easy: 0, Medium: 1, Hard: 2 };
+    list.sort(function (a, b) { return order[a.d] - order[b.d]; });
+    GEN.forEach(function (g) {
+      list.push({ q: fill(g.q, T, S), a: fill(g.a, T, S), kw: g.kw(tg), d: g.d, f: 'Core idea: define ' + T + ' → explain it → support it with an example.', t: 'A full-mark answer links a precise definition of ' + T + ' to a clear example.' });
+    });
+    var chosen = list.slice(0, count);
+    return chosen.map(function (x, i) {
+      var d = shiftDiff(x.d, band);
+      return { id: 'q' + i, q: x.q, a: x.a, kw: x.kw, d: d, f: x.f, t: x.t, band: band, topic: T,
+        hint: 'Try to mention: ' + x.kw.slice(0, 2).map(function (g) { return g[0]; }).join(', ') + (band === '3-5' ? '. Keep it short and simple, and use one example.' : '.') };
+    });
+  }
+
+  /* ---------- Paper Cracker generator ---------- */
+  var UNIV = [
+    ['Which approach is best when starting a new problem on {T}?', 'Identify what is given and what is asked', ['Guess the final answer first', 'Skip straight to the last step', 'Memorise without understanding']],
+    ['A strong answer on {T} should always include:', 'Key terms with a clear explanation', ['Only the final answer', 'Unrelated facts', 'A very long introduction']],
+    ['Which habit improves accuracy in {S} exams?', 'Reviewing answers before submitting', ['Leaving questions blank', 'Changing answers randomly', 'Ignoring the marking scheme']],
+    ['In HOTS questions on {T}, examiners mostly test:', 'Application and analysis', ['Handwriting speed', 'Copying definitions', 'Guessing']],
+    ['The best way to revise {T} is:', 'Practising questions with self-evaluation', ['Reading it once quickly', 'Only watching others solve', 'Avoiding the weak areas']],
+    ['For a 4-mark question on {T} you should:', 'Give four distinct, relevant points', ['Write a single line', 'Write everything you know regardless of relevance', 'Only draw a figure']],
+    ['Which is a sign that you have understood {T}?', 'You can explain it to someone else with an example', ['You can recite the chapter title', 'You remember the page number', 'You finished the chapter quickly']],
+    ['What helps most after making a mistake in {T}?', 'Find the cause and redo the problem', ['Ignore it', 'Memorise the wrong answer', 'Skip similar questions']],
+    ['The command word "Justify" in a {S} question means:', 'Give reasons that support your answer', ['List names only', 'Draw a diagram only', 'Copy the question']],
+    ['The command word "Compare" means:', 'Show similarities and differences', ['Define one term', 'Give a single example', 'Rewrite the question']],
+    ['The command word "Evaluate" means:', 'Judge the value or significance using evidence', ['Recall a definition', 'Copy a formula', 'Name an example']],
+    ['Time management in a {S} paper is best done by:', 'Allotting time to each section and keeping time to revise', ['Spending all the time on Question 1', 'Attempting only the hardest questions', 'Skipping revision']],
+    ['Which source is most reliable for verifying facts on {T}?', 'The prescribed textbook or a standard reference', ['A random social-media post', 'A guess from a friend', 'An unsigned forum comment']],
+    ['Linking {T} to real-life examples helps because:', 'It builds deeper understanding and recall', ['It shortens the syllabus', 'It removes the need for practice', 'It changes the marking scheme']],
+    ['In an MCQ paper with negative marking, the wise strategy is to:', 'Eliminate wrong options before guessing', ['Guess every question', 'Leave every question blank', 'Always pick the longest option']],
+    ['Which is true of a good diagram in {S}?', 'It is neat, labelled and relevant', ['It is colourful but unlabelled', 'It fills the entire page', 'It is copied without understanding']]
+  ];
+
+  function marksScheme(kw, marks) {
+    var per = marks / kw.length;
+    var p = (Math.round(per * 10) / 10).toString();
+    return kw.map(function (g) { return { label: g[0], marks: p }; });
+  }
+
+  function buildPaper(cfg) {
+    var T = cfg.chapter.trim(), kb = findTopic(T);
+    var S = kb ? kb.subject : detectSubject(T, cfg.subject);
+    var subj = cfg.subject;
+    var tg = tokens(T);
+    var ex = cfg.extreme;
+    var c = ex ? { aN: 15, aM: 2, bN: 5, bM: 6, cN: 4, cM: 10, time: 180, max: 100 } : { aN: 10, aM: 1, bN: 5, bM: 4, cN: 2, cM: 10, time: 90, max: 50 };
+    var band = clsToBand(cfg.cls);
+
+    var pool = [];
+    if (kb) kb.mcqs.forEach(function (m) { pool.push({ q: m.q, correct: m.o[0], wrong: m.o.slice(1) }); });
+    shuffle(UNIV).forEach(function (u) { pool.push({ q: fill(u[0], T, subj), correct: u[1], wrong: u[2] }); });
+    var mcqs = pool.slice(0, c.aN).map(function (m, i) {
+      var opts = shuffle([m.correct].concat(m.wrong));
+      return { id: 'a' + i, q: m.q, opts: opts, ans: opts.indexOf(m.correct), marks: c.aM };
+    });
+
+    var usedQ = {};
+    var take = function (arr, n) { var out = []; arr.forEach(function (x) { if (out.length < n && !usedQ[x.q]) { usedQ[x.q] = 1; out.push(x); } }); return out; };
+    var kbFacts = kb ? kb.facts : [];
+    var easyMed = kbFacts.filter(function (f) { return f.d !== 'Hard'; }).map(function (f) { return { q: f.q, a: f.a, kw: f.kw }; });
+    var hardKb = kbFacts.filter(function (f) { return f.d === 'Hard'; }).map(function (f) { return { q: f.q, a: f.a, kw: f.kw }; });
+    var gen = function (d) { return GEN.filter(function (g) { return g.d === d; }).map(function (g) { return { q: fill(g.q, T, subj), a: fill(g.a, T, subj), kw: g.kw(tg) }; }); };
+    var hots = HOTS.map(function (h) { return { q: fill(h.q, T, subj), a: fill(h.a, T, subj), kw: h.kw(tg) }; });
+
+    var Bsrc = ex ? easyMed.concat(gen('Hard')).concat(gen('Medium')) : easyMed.concat(gen('Medium')).concat(gen('Easy'));
+    var Bq = take(Bsrc, c.bN).map(function (x, i) { return { id: 'b' + i, q: x.q, model: x.a, kw: x.kw, marks: c.bM, scheme: marksScheme(x.kw, c.bM) }; });
+    var Csrc = hardKb.concat(hots).concat(gen('Hard'));
+    var Cq = take(Csrc, c.cN).map(function (x, i) { return { id: 'c' + i, q: x.q, model: x.a, kw: x.kw, marks: c.cM, scheme: marksScheme(x.kw, c.cM) }; });
+
+    return { cls: cfg.cls, subject: subj, chapter: T, extreme: ex, band: band, cfg: c, mcqs: mcqs, short: Bq, long: Cq, builtIn: !!kb };
+  }
+
+  /* ---------- UI helpers ---------- */
+  var DIFF = {
+    Easy: 'border-[#00ff66]/50 text-[#00ff66] bg-[#00ff66]/10',
+    Medium: 'border-yellow-400/50 text-yellow-300 bg-yellow-400/10',
+    Hard: 'border-[#ff007f]/60 text-[#ff5fa8] bg-[#ff007f]/10',
+    Extreme: 'border-[#ff007f]/60 text-[#ff5fa8] bg-[#ff007f]/10'
+  };
+  var LV = {
+    correct: { label: 'Correct / Excellent', dot: '🟢', cls: 'border-[#00ff66]/50 bg-[#00ff66]/10 text-[#00ff66]' },
+    partial: { label: 'Partially Correct', dot: '🟡', cls: 'border-yellow-400/50 bg-yellow-400/10 text-yellow-300' },
+    improve: { label: 'Needs Improvement', dot: '🔴', cls: 'border-[#ff007f]/60 bg-[#ff007f]/10 text-[#ff5fa8]' }
+  };
+  function Badge(p) { return html`<span className=${'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ' + p.cls}>${p.children}</span>`; }
+  function fmtTime(s) {
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return (h ? h + ':' : '') + p(m) + ':' + p(x);
+  }
+  function titleFor(score) {
+    if (score >= 9) return { t: 'Master Practitioner', c: '#00ff66' };
+    if (score >= 7) return { t: 'Rising Scholar', c: '#00f3ff' };
+    if (score >= 5) return { t: 'Steady Climber', c: '#a855f7' };
+    if (score >= 3) return { t: 'Warming Up', c: '#facc15' };
+    return { t: 'Fresh Starter', c: '#ff007f' };
+  }
+
+  /* ---------- Score ring ---------- */
+  function Ring(p) {
+    var st = useState(false), go = st[0], setGo = st[1];
+    useEffect(function () { var id = setTimeout(function () { setGo(true); }, 80); return function () { clearTimeout(id); }; }, []);
+    var R = 54, C = 2 * Math.PI * R, off = go ? C * (1 - Math.min(p.score, 10) / 10) : C;
+    return html`<div className="relative" style=${{ width: 160, height: 160, color: p.color }}>
+      <svg width="160" height="160" viewBox="0 0 128 128" style=${{ transform: 'rotate(-90deg)' }} role="img" aria-label=${'Score ' + p.score + ' out of 10'}>
+        <circle className="ring-track" cx="64" cy="64" r=${R} fill="none" strokeWidth="10" />
+        <circle className="ring-bar" cx="64" cy="64" r=${R} fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeDasharray=${C} strokeDashoffset=${off} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-display text-4xl font-extrabold text-white">${p.score}</span>
+        <span className="text-xs text-slate-400">out of 10</span>
+      </div>
+    </div>`;
+  }
+
+  /* ---------- Practice section ---------- */
+  var QUICK = ['Photosynthesis', 'Quadratic Equations', "Newton's Laws", 'French Revolution', 'Verbs & Tenses', 'Fractions'];
+
+  function Practice(props) {
+    var _b = useState('6-8'), band = _b[0], setBand = _b[1];
+    var _t = useState(''), topic = _t[0], setTopic = _t[1];
+    var _c = useState(8), count = _c[0], setCount = _c[1];
+    var _q = useState(null), qs = _q[0], setQs = _q[1];
+    var _a = useState({}), ans = _a[0], setAns = _a[1];
+    var _r = useState({}), res = _r[0], setRes = _r[1];
+    var _h = useState({}), hint = _h[0], setHint = _h[1];
+    var _e = useState({}), err = _e[0], setErr = _e[1];
+    var _l = useState(false), loading = _l[0], setLoading = _l[1];
+    var _te = useState(''), topErr = _te[0], setTopErr = _te[1];
+    var _m = useState(false), modal = _m[0], setModal = _m[1];
+    var feedRef = useRef(null), tRef = useRef(null);
+
+    useEffect(function () { return function () { clearTimeout(tRef.current); }; }, []);
+    useEffect(function () {
+      if (!modal) return;
+      var onKey = function (e) { if (e.key === 'Escape') setModal(false); };
+      window.addEventListener('keydown', onKey);
+      return function () { window.removeEventListener('keydown', onKey); };
+    }, [modal]);
+
+    function generate(t) {
+      var name = (typeof t === 'string' ? t : topic).trim();
+      if (!name) { setTopErr('Enter a chapter, topic or keyword first, for example "Photosynthesis".'); return; }
+      setTopErr(''); setTopic(name); setLoading(true); setModal(false);
+      clearTimeout(tRef.current);
+      tRef.current = setTimeout(function () {
+        setQs(buildPractice(name, band, count));
+        setAns({}); setRes({}); setHint({}); setErr({}); setLoading(false);
+        setTimeout(function () { if (feedRef.current) feedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+      }, 650);
+    }
+    function submit(q) {
+      var a = (ans[q.id] || '').trim();
+      if (a.length < 3) { setErr(function (e) { var n = Object.assign({}, e); n[q.id] = 'Type your answer first (at least a few words).'; return n; }); return; }
+      setErr(function (e) { var n = Object.assign({}, e); n[q.id] = ''; return n; });
+      setRes(function (r) { var n = Object.assign({}, r); n[q.id] = evaluate(a, q.kw); return n; });
+    }
+
+    var total = qs ? qs.length : 0;
+    var answered = Object.keys(res).length;
+    var points = Object.keys(res).reduce(function (s, k) { return s + res[k].points; }, 0);
+    var score = total ? Math.round((points / total) * 100) / 10 : 0;
+    var progress = total ? Math.round((answered / total) * 100) : 0;
+
+    function recommendations() {
+      var recs = [];
+      var unans = total - answered;
+      if (unans > 0) recs.push('Attempt the ' + unans + ' unanswered question' + (unans > 1 ? 's' : '') + '. Blank answers score zero.');
+      qs.forEach(function (q) {
+        var r = res[q.id];
+        if (r && r.level === 'improve') recs.push('Revise: "' + q.q.slice(0, 70) + (q.q.length > 70 ? '…' : '') + '" and read the model answer again.');
+      });
+      var missed = [];
+      qs.forEach(function (q) { var r = res[q.id]; if (r && r.level === 'partial') r.miss.forEach(function (m) { if (missed.indexOf(m) === -1) missed.push(m); }); });
+      if (missed.length) recs.push('Add the missing key terms to your answers, such as: ' + missed.slice(0, 4).join(', ') + '.');
+      if (score >= 9) recs.push('Outstanding. Try Paper Cracker in Extreme Exam Cracker Level next.');
+      else if (score >= 6) recs.push('Good base. Re-attempt the questions marked partial to lift your score.');
+      else recs.push('Read the ideal solutions once, then regenerate the set and try again from memory.');
+      return recs.slice(0, 5);
+    }
+
+    return html`<div>
+      <section className="mx-auto max-w-5xl px-4 pt-10 sm:pt-16 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#00f3ff]/40 bg-[#00f3ff]/10 px-3 py-1 text-xs font-semibold text-[#00f3ff]">
+          <${Icon} name="spark" size=${14} /> Works offline. No API key needed.
+        </span>
+        <h1 className="font-display mt-5 text-4xl font-extrabold leading-tight sm:text-6xl">
+          <span className="grad-text">Practice Any Topic. AI-Guided Scoring. Ace Your Exams.</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-slate-400">Pick your level, type a chapter, and get exam-style questions. Write your answers and get instant feedback against a model answer.</p>
+      </section>
+
+      <section className="mx-auto mt-8 max-w-4xl px-4">
+        <div className="glass rounded-2xl p-4 sm:p-6" style=${{ boxShadow: '0 0 40px rgba(0,243,255,.10)' }}>
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <label className="block">
+              <span className="mb-1 block text-sm font-semibold text-slate-300">Grade and target</span>
+              <select className="field" value=${band} onChange=${function (e) { setBand(e.target.value); }}>
+                ${BANDS.map(function (b) { return html`<option key=${b.id} value=${b.id}>${b.label}</option>`; })}
+              </select>
+            </label>
+            <label className="block sm:w-40">
+              <span className="mb-1 block text-sm font-semibold text-slate-300">Questions</span>
+              <select className="field" value=${count} onChange=${function (e) { setCount(+e.target.value); }}>
+                ${[5, 6, 7, 8, 9, 10].map(function (n) { return html`<option key=${n} value=${n}>${n} questions</option>`; })}
+              </select>
+            </label>
+          </div>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+            <div className="relative flex-1">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"><${Icon} name="search" /></span>
+              <input className="field" style=${{ paddingLeft: '2.75rem' }} value=${topic} placeholder="Chapter, topic or keyword: Photosynthesis, Quadratic Equations…"
+                onChange=${function (e) { setTopic(e.target.value); if (topErr) setTopErr(''); }}
+                onKeyDown=${function (e) { if (e.key === 'Enter') generate(); }} aria-label="Topic" />
+            </div>
+            <button className="btn btn-cyan" onClick=${function () { generate(); }} disabled=${loading}>
+              <${Icon} name="zap" /> Generate Practice Questions
+            </button>
+          </div>
+          ${topErr && html`<p className="mt-2 text-sm text-[#ff5fa8]" role="alert">${topErr}</p>`}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-slate-500">Try:</span>
+            ${QUICK.map(function (t) { return html`<button key=${t} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 transition hover:border-[#00f3ff]/60 hover:text-[#00f3ff]" onClick=${function () { generate(t); }}>${t}</button>`; })}
+          </div>
+        </div>
+      </section>
+
+      <div ref=${feedRef}></div>
+
+      ${loading && html`<div className="mx-auto mt-10 flex max-w-4xl items-center justify-center gap-3 px-4 text-[#00f3ff]" role="status">
+        <span className="pulse-dot h-2.5 w-2.5 rounded-full bg-[#00f3ff]"></span>
+        <span>Building your question set…</span>
+      </div>`}
+
+      ${qs && !loading && html`<section className="mx-auto mt-10 max-w-4xl px-4 pb-24">
+        <div className="sticky-under glass rounded-2xl px-4 py-3" style=${{ boxShadow: '0 8px 30px rgba(0,0,0,.4)' }}>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span className="font-semibold text-slate-200">${qs[0].topic} <span className="text-slate-500">· ${bandLabel(band)}</span></span>
+            <span className="text-slate-400">Answered <b className="text-white">${answered}/${total}</b> · Live score <b className="text-[#00ff66]">${score}/10</b></span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuenow=${progress} aria-valuemin="0" aria-valuemax="100">
+            <div className="h-full rounded-full" style=${{ width: progress + '%', background: 'linear-gradient(90deg,#00f3ff,#00ff66)', boxShadow: '0 0 12px #00ff66', transition: 'width .4s ease' }}></div>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-5">
+          ${qs.map(function (q, i) {
+            var r = res[q.id];
+            return html`<article key=${q.id} className="glass rounded-2xl p-4 sm:p-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-display text-sm font-bold text-[#00f3ff]">Q${i + 1}</span>
+                <${Badge} cls="border-[#00f3ff]/40 text-[#00f3ff] bg-[#00f3ff]/10">${bandLabel(q.band)}<//>
+                <${Badge} cls=${DIFF[q.d]}>${q.d}<//>
+              </div>
+              <h3 className="mt-3 text-lg font-semibold leading-snug text-white">${q.q}</h3>
+              <textarea className="field mt-4" placeholder="Type your answer here…" value=${ans[q.id] || ''}
+                onChange=${function (e) { var v = e.target.value; setAns(function (a) { var n = Object.assign({}, a); n[q.id] = v; return n; }); }}
+                aria-label=${'Your answer to question ' + (i + 1)}></textarea>
+              ${err[q.id] && html`<p className="mt-2 text-sm text-[#ff5fa8]" role="alert">${err[q.id]}</p>`}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className="btn btn-green" onClick=${function () { submit(q); }}><${Icon} name="check" /> ${r ? 'Re-check Answer' : 'Submit & Check Answer'}</button>
+                <button className="btn btn-ghost" onClick=${function () { setHint(function (h) { var n = Object.assign({}, h); n[q.id] = !n[q.id]; return n; }); }}><${Icon} name="bulb" /> Hint</button>
+              </div>
+              ${hint[q.id] && html`<p className="pop mt-3 rounded-xl border border-yellow-400/30 bg-yellow-400/5 px-3 py-2 text-sm text-yellow-200">${q.hint}</p>`}
+
+              ${r && html`<div className="pop mt-4 space-y-3">
+                <div className=${'rounded-xl border px-4 py-3 ' + LV[r.level].cls}>
+                  <div className="font-semibold">${LV[r.level].dot} ${LV[r.level].label}</div>
+                  <div className="mt-1 text-sm opacity-90">You covered ${r.hit.length} of ${r.hit.length + r.miss.length} key ideas.</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    ${r.hit.map(function (h) { return html`<span key=${'h' + h} className="rounded-full bg-[#00ff66]/15 px-2 py-0.5 text-xs text-[#00ff66]">✓ ${h}</span>`; })}
+                    ${r.miss.map(function (h) { return html`<span key=${'m' + h} className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-300">missing: ${h}</span>`; })}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="text-sm font-semibold text-[#00f3ff]">Step-by-step model solution</div>
+                  <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-slate-200">
+                    ${stepsOf(q.a).map(function (s, k) { return html`<li key=${k}>${s}</li>`; })}
+                  </ol>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-[#a855f7]/30 bg-[#a855f7]/10 p-3 text-sm"><b className="text-[#c9a0ff]">Core formula / concept</b><div className="mt-1 text-slate-200">${q.f}</div></div>
+                    <div className="rounded-lg border border-[#00ff66]/30 bg-[#00ff66]/10 p-3 text-sm"><b className="text-[#00ff66]">Key takeaway</b><div className="mt-1 text-slate-200">${q.t}</div></div>
+                  </div>
+                </div>
+              </div>`}
+            </article>`;
+          })}
+        </div>
+
+        <div className="mt-8 text-center">
+          <button className="btn btn-green px-8 py-4 text-base" onClick=${function () { setModal(true); }}>
+            <${Icon} name="trophy" size=${20} /> Finish Practice & Calculate Final Score
+          </button>
+        </div>
+      </section>`}
+
+      ${modal && qs && html`<div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Final score">
+        <div className="absolute inset-0 bg-black/75" onClick=${function () { setModal(false); }}></div>
+        <div className="glass pop relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl p-6 text-center" style=${{ background: 'rgba(15,17,26,.96)', boxShadow: '0 0 60px rgba(0,243,255,.25)' }}>
+          <button className="absolute right-3 top-3 rounded-full p-2 text-slate-400 hover:text-white" onClick=${function () { setModal(false); }} aria-label="Close"><${Icon} name="x" /></button>
+          <div className="text-sm text-slate-400">Final Score · ${qs[0].topic}</div>
+          <div className="mt-4 flex justify-center"><${Ring} score=${score} color=${titleFor(score).c} /></div>
+          <h2 className="font-display mt-4 text-2xl font-extrabold" style=${{ color: titleFor(score).c }}>${titleFor(score).t}</h2>
+          <p className="mt-1 text-sm text-slate-400">${answered} of ${total} answered · ${points} of ${total} points earned</p>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4 text-left">
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#00f3ff]"><${Icon} name="target" size=${16} /> How to improve</div>
+            <ul className="space-y-2 text-sm text-slate-200">
+              ${recommendations().map(function (t, k) { return html`<li key=${k} className="flex gap-2"><span className="text-[#00ff66]">▸</span><span>${t}</span></li>`; })}
+            </ul>
+          </div>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <button className="btn btn-ghost" onClick=${function () { setModal(false); }}>Review answers</button>
+            <button className="btn btn-cyan" onClick=${function () { generate(qs[0].topic); }}><${Icon} name="reset" /> New set</button>
+            <button className="btn btn-pink" onClick=${function () { setModal(false); props.goPaper(); }}><${Icon} name="flame" /> Try Paper Cracker</button>
+          </div>
+        </div>
+      </div>`}
+    </div>`;
+  }
+
+  /* ---------- Paper Cracker ---------- */
+  function PaperCracker() {
+    var _c = useState('Class 10'), cls = _c[0], setCls = _c[1];
+    var _s = useState('Science'), subject = _s[0], setSubject = _s[1];
+    var _ch = useState(''), chapter = _ch[0], setChapter = _ch[1];
+    var _x = useState(false), extreme = _x[0], setExtreme = _x[1];
+    var _p = useState(null), paper = _p[0], setPaper = _p[1];
+    var _e = useState(''), err = _e[0], setErr = _e[1];
+    var _sel = useState({}), sel = _sel[0], setSel = _sel[1];
+    var _w = useState({}), written = _w[0], setWritten = _w[1];
+    var _sol = useState(false), showSol = _sol[0], setShowSol = _sol[1];
+    var _left = useState(0), left = _left[0], setLeft = _left[1];
+    var _run = useState(false), running = _run[0], setRunning = _run[1];
+    var paperRef = useRef(null);
+
+    useEffect(function () {
+      if (!running) return;
+      var id = setInterval(function () {
+        setLeft(function (l) { if (l <= 1) { setRunning(false); return 0; } return l - 1; });
+      }, 1000);
+      return function () { clearInterval(id); };
+    }, [running]);
+
+    function generate() {
+      if (!chapter.trim()) { setErr('Enter a chapter name or "Full Syllabus" first.'); return; }
+      setErr('');
+      var p = buildPaper({ cls: cls, subject: subject, chapter: chapter, extreme: extreme });
+      setPaper(p); setSel({}); setWritten({}); setShowSol(false); setRunning(false); setLeft(p.cfg.time * 60);
+      setTimeout(function () { if (paperRef.current) paperRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    }
+    var timeUp = paper && left === 0;
+    var mcqScore = paper ? paper.mcqs.reduce(function (s, m) { return s + (sel[m.id] === m.ans ? m.marks : 0); }, 0) : 0;
+    var mcqTotal = paper ? paper.mcqs.reduce(function (s, m) { return s + m.marks; }, 0) : 0;
+
+    function Question(q, label) {
+      return html`<div key=${q.id} className="avoid-break rounded-xl border border-white/10 bg-black/20 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <p className="font-semibold text-white"><span className="text-[#c9a0ff]">${label}.</span> ${q.q}</p>
+          <span className="shrink-0 rounded-full border border-[#a855f7]/40 px-2 py-0.5 text-xs text-[#c9a0ff]">[${q.marks} marks]</span>
+        </div>
+        <textarea className="field field-violet mt-3" placeholder="Write your answer here…" value=${written[q.id] || ''}
+          onChange=${function (e) { var v = e.target.value; setWritten(function (w) { var n = Object.assign({}, w); n[q.id] = v; return n; }); }}
+          aria-label=${'Answer for ' + label}></textarea>
+        ${showSol && html`<div className="pop mt-3 rounded-lg border border-[#00ff66]/30 bg-[#00ff66]/5 p-3 text-sm">
+          <div className="font-semibold text-[#00ff66]">Model answer</div>
+          <p className="mt-1 text-slate-200">${q.model}</p>
+          <div className="mt-2 font-semibold text-[#00f3ff]">Marking scheme (${q.marks} marks)</div>
+          <ul className="mt-1 space-y-0.5 text-slate-300">
+            ${q.scheme.map(function (s, k) { return html`<li key=${k}>• Mention <b>${s.label}</b>: ${s.marks} mark${s.marks === '1' ? '' : 's'}</li>`; })}
+          </ul>
+        </div>`}
+      </div>`;
+    }
+
+    var aTotal = paper ? paper.cfg.aN * paper.cfg.aM : 0, bTotal = paper ? paper.cfg.bN * paper.cfg.bM : 0, cTotal = paper ? paper.cfg.cN * paper.cfg.cM : 0;
+
+    return html`<div>
+      <section className="no-print mx-auto max-w-5xl px-4 pt-10 sm:pt-16 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#ff007f]/50 bg-[#ff007f]/10 px-3 py-1 text-xs font-semibold text-[#ff5fa8]"><${Icon} name="flame" size=${14} /> High-stakes mode</span>
+        <h1 className="font-display mt-5 text-4xl font-extrabold sm:text-6xl"><span style=${{ background: 'linear-gradient(90deg,#a855f7,#ff007f)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Paper Cracker</span></h1>
+        <p className="mx-auto mt-4 max-w-2xl text-slate-400">Build a full mock paper with MCQs, short answers and HOTS questions. Start the timer and attempt it like the real exam.</p>
+      </section>
+
+      <section className="no-print mx-auto mt-8 max-w-4xl px-4">
+        <div className="glass rounded-2xl p-4 sm:p-6" style=${{ boxShadow: '0 0 40px rgba(168,85,247,.16)', borderColor: 'rgba(168,85,247,.3)' }}>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-300">Target class or exam</span>
+              <select className="field field-violet" value=${cls} onChange=${function (e) { setCls(e.target.value); }}>
+                ${PAPER_CLASSES.map(function (c) { return html`<option key=${c} value=${c}>${c}</option>`; })}
+              </select></label>
+            <label className="block"><span className="mb-1 block text-sm font-semibold text-slate-300">Subject</span>
+              <select className="field field-violet" value=${subject} onChange=${function (e) { setSubject(e.target.value); }}>
+                ${SUBJECTS.map(function (c) { return html`<option key=${c} value=${c}>${c}</option>`; })}
+              </select></label>
+          </div>
+          <label className="mt-3 block"><span className="mb-1 block text-sm font-semibold text-slate-300">Chapter or full-syllabus topic</span>
+            <input className="field field-violet" value=${chapter} placeholder="e.g. Quadratic Equations, Photosynthesis, Full Syllabus"
+              onChange=${function (e) { setChapter(e.target.value); if (err) setErr(''); }} onKeyDown=${function (e) { if (e.key === 'Enter') generate(); }} /></label>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="inline-flex rounded-2xl border border-white/10 bg-black/30 p-1" role="group" aria-label="Paper level">
+              <button className=${'rounded-xl px-4 py-2 text-sm font-semibold transition ' + (!extreme ? 'bg-[#a855f7] text-white' : 'text-slate-400 hover:text-white')} onClick=${function () { setExtreme(false); }} aria-pressed=${!extreme}>Standard Board Level</button>
+              <button className=${'rounded-xl px-4 py-2 text-sm font-semibold transition ' + (extreme ? 'bg-[#ff007f] text-white' : 'text-slate-400 hover:text-white')} onClick=${function () { setExtreme(true); }} aria-pressed=${extreme}>Extreme Exam Cracker Level</button>
+            </div>
+            <button className="btn btn-violet" onClick=${generate}><${Icon} name="zap" /> Generate Exam Paper</button>
+          </div>
+          <p className="mt-2 text-xs text-slate-500">${extreme ? '100 marks · 3 hours · 15 MCQs, 5 short answers, 4 HOTS questions' : '50 marks · 90 minutes · 10 MCQs, 5 short answers, 2 HOTS questions'}</p>
+          ${err && html`<p className="mt-2 text-sm text-[#ff5fa8]" role="alert">${err}</p>`}
+        </div>
+      </section>
+
+      <div ref=${paperRef}></div>
+
+      ${paper && html`<section className="mx-auto mt-10 max-w-4xl px-4 pb-24">
+        <div className="no-print sticky-under glass rounded-2xl px-4 py-3" style=${{ borderColor: 'rgba(168,85,247,.35)', boxShadow: '0 8px 30px rgba(0,0,0,.4)' }}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <${Icon} name="clock" className=${timeUp ? 'text-[#ff007f]' : 'text-[#c9a0ff]'} />
+              <span className=${'font-display text-2xl font-bold tabular-nums ' + (timeUp ? 'text-[#ff007f]' : left < 300 && running ? 'text-[#ff5fa8]' : 'text-white')} role="timer">${fmtTime(left)}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button className="btn btn-green px-4 py-2" onClick=${function () { if (left > 0) setRunning(!running); }} disabled=${timeUp}><${Icon} name=${running ? 'pause' : 'play'} size=${16} /> ${running ? 'Pause' : 'Start'}</button>
+              <button className="btn btn-ghost px-4 py-2" onClick=${function () { setRunning(false); setLeft(paper.cfg.time * 60); }}><${Icon} name="reset" size=${16} /> Reset</button>
+              <button className="btn btn-ghost px-4 py-2" onClick=${function () { window.print(); }}><${Icon} name="printer" size=${16} /> Print / Save as PDF</button>
+              <button className="btn btn-pink px-4 py-2" onClick=${function () { setShowSol(!showSol); }}><${Icon} name="eye" size=${16} /> ${showSol ? 'Hide' : 'Toggle'} Full Solutions & Marking Scheme</button>
+            </div>
+          </div>
+          ${timeUp && html`<p className="mt-2 text-sm font-semibold text-[#ff5fa8]" role="alert">Time is up. Pens down. Toggle the solutions to check your paper.</p>`}
+        </div>
+
+        <article className="glass mt-5 rounded-2xl p-5 sm:p-8">
+          <header className="border-b border-white/15 pb-5 text-center">
+            <div className="font-display text-sm font-bold text-[#c9a0ff]">EDUPULSE AI · MOCK EXAMINATION</div>
+            <h2 className="font-display mt-1 text-2xl font-extrabold text-white sm:text-3xl">${paper.subject}: ${paper.chapter}</h2>
+            <div className="mt-2 flex flex-wrap justify-center gap-2 text-sm">
+              <${Badge} cls="border-[#a855f7]/40 text-[#c9a0ff] bg-[#a855f7]/10">${paper.cls}<//>
+              <${Badge} cls=${paper.extreme ? DIFF.Extreme : 'border-[#00f3ff]/40 text-[#00f3ff] bg-[#00f3ff]/10'}>${paper.extreme ? 'Extreme Exam Cracker Level' : 'Standard Board Level'}<//>
+            </div>
+            <div className="mt-4 flex justify-center gap-8 text-sm text-slate-300">
+              <span>Time allowed: <b className="text-white">${paper.cfg.time >= 120 ? paper.cfg.time / 60 + ' hours' : paper.cfg.time + ' minutes'}</b></span>
+              <span>Maximum marks: <b className="text-white">${paper.cfg.max}</b></span>
+            </div>
+            <ul className="mx-auto mt-4 max-w-xl list-disc space-y-1 pl-5 text-left text-sm text-slate-400">
+              <li>All questions are compulsory. Marks are shown against each question.</li>
+              <li>Section A has ${paper.cfg.aN} MCQs of ${paper.cfg.aM} mark${paper.cfg.aM > 1 ? 's' : ''} each. Tap one option per question.</li>
+              <li>Section B: short answers (${paper.cfg.bM} marks each). Section C: HOTS / long answers (${paper.cfg.cM} marks each).</li>
+              <li>Write clearly and support every answer with reasons or examples.</li>
+            </ul>
+            ${!paper.builtIn && html`<p className="no-print mt-3 text-xs text-slate-500">This chapter is outside the built-in library, so questions use adaptive templates. Built-in chapters: Photosynthesis, Quadratic Equations, Newton's Laws, French Revolution, Verbs & Tenses, Fractions.</p>`}
+          </header>
+
+          <div className="mt-6">
+            <h3 className="font-display text-lg font-bold text-[#00f3ff]">Section A · Multiple Choice <span className="text-sm font-medium text-slate-400">(${paper.cfg.aN} × ${paper.cfg.aM} = ${aTotal} marks)</span></h3>
+            ${showSol && html`<p className="pop mt-2 text-sm font-semibold text-[#00ff66]">Your MCQ score: ${mcqScore} / ${mcqTotal}</p>`}
+            <div className="mt-3 space-y-4">
+              ${paper.mcqs.map(function (m, i) {
+                return html`<div key=${m.id} className="avoid-break rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="font-semibold text-white"><span className="text-[#00f3ff]">${i + 1}.</span> ${m.q} <span className="text-xs font-normal text-slate-500">[${m.marks}]</span></p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    ${m.opts.map(function (o, k) {
+                      var chosen = sel[m.id] === k, right = showSol && k === m.ans, wrong = showSol && chosen && k !== m.ans;
+                      var cls = right ? 'border-[#00ff66] bg-[#00ff66]/15 text-[#00ff66]' : wrong ? 'border-[#ff007f] bg-[#ff007f]/15 text-[#ff5fa8]' : chosen ? 'border-[#a855f7] bg-[#a855f7]/20 text-white' : 'border-white/10 bg-white/5 text-slate-300 hover:border-[#a855f7]/60';
+                      return html`<button key=${k} className=${'rounded-xl border px-3 py-2 text-left text-sm transition ' + cls} aria-pressed=${chosen}
+                        onClick=${function () { setSel(function (s) { var n = Object.assign({}, s); n[m.id] = k; return n; }); }}>
+                        <b className="mr-2">${String.fromCharCode(65 + k)}.</b>${o}
+                      </button>`;
+                    })}
+                  </div>
+                </div>`;
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h3 className="font-display text-lg font-bold text-[#c9a0ff]">Section B · Short Answer <span className="text-sm font-medium text-slate-400">(${paper.cfg.bN} × ${paper.cfg.bM} = ${bTotal} marks)</span></h3>
+            <div className="mt-3 space-y-4">${paper.short.map(function (q, i) { return Question(q, 'B' + (i + 1)); })}</div>
+          </div>
+
+          <div className="mt-8">
+            <h3 className="font-display text-lg font-bold text-[#ff5fa8]">Section C · HOTS / Long Answer <span className="text-sm font-medium text-slate-400">(${paper.cfg.cN} × ${paper.cfg.cM} = ${cTotal} marks)</span></h3>
+            <div className="mt-3 space-y-4">${paper.long.map(function (q, i) { return Question(q, 'C' + (i + 1)); })}</div>
+          </div>
+          <p className="mt-8 text-center text-sm text-slate-500">— End of paper —</p>
+        </article>
+      </section>`}
+    </div>`;
+  }
+
+  /* ---------- App shell ---------- */
+  function App() {
+    var _t = useState(window.location.hash === '#paper' ? 'paper' : 'practice'), tab = _t[0], setTab = _t[1];
+    function go(t) { setTab(t); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    var tabBtn = function (id, label, on) {
+      return html`<button className=${'rounded-xl px-3 py-2 text-sm font-semibold transition sm:px-4 ' + (tab === id ? on : 'text-slate-400 hover:text-white')} onClick=${function () { go(id); }} aria-current=${tab === id ? 'page' : undefined}>${label}</button>`;
+    };
+    return html`<div>
+      <header className="app-header no-print">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl" style=${{ background: 'linear-gradient(135deg,#00f3ff,#a855f7)', boxShadow: '0 0 16px rgba(0,243,255,.5)', color: '#04070c' }}><${Icon} name="zap" size=${20} /></span>
+            <span className="font-display text-lg font-extrabold text-white">EduPulse <span className="text-[#00f3ff]">AI</span></span>
+          </div>
+          <nav className="flex gap-1 rounded-2xl border border-white/10 bg-black/30 p-1" aria-label="Sections">
+            ${tabBtn('practice', 'Practice', 'bg-[#00f3ff] text-[#021316]')}
+            ${tabBtn('paper', 'Paper Cracker', 'bg-[#a855f7] text-white')}
+          </nav>
+        </div>
+        <nav className="mx-auto flex max-w-6xl flex-wrap gap-x-5 gap-y-2 px-4 pb-3 text-sm text-slate-300" aria-label="Main navigation">
+          <a href="index.html">Homepage</a><a href="about-us.html">About Us</a><a href="privacy-policy.html">Privacy Policy</a><a href="terms-of-service.html">Terms of Service</a>
+        </nav>
+      </header>
+      <main>${tab === 'practice' ? html`<${Practice} goPaper=${function () { go('paper'); }} />` : html`<${PaperCracker} />`}</main>
+      <footer className="no-print mx-auto max-w-4xl px-4 pb-10 text-center text-xs text-slate-400"><p>Study answers are processed in your browser. Feedback compares key terms with a model answer and is a study guide, not an official grade.</p><nav className="mt-4 flex flex-wrap justify-center gap-4" aria-label="Footer navigation"><a href="index.html">Homepage</a><a href="about-us.html">About Us & FAQs</a><a href="privacy-policy.html">Privacy Policy</a><a href="terms-of-service.html">Terms of Service</a></nav></footer>
+    </div>`;
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+})();
+</script>
+</body>
+</html>

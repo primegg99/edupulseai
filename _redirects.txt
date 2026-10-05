@@ -1,0 +1,4 @@
+/practice /practice.html 200
+/about-us /about-us.html 200
+/privacy-policy /privacy-policy.html 200
+/terms-of-service /terms-of-service.html 200
